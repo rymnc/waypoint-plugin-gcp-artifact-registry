@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/waypoint-plugin-sdk/terminal"
+	artifactregistry "google.golang.org/api/artifactregistry/v1"
 )
 
 type RegistryConfig struct {
@@ -17,6 +18,7 @@ type RegistryConfig struct {
 type Registry struct {
 	config RegistryConfig
 	log    hclog.Logger
+	client *artifactregistry.Service
 }
 
 // Implement Configurable
