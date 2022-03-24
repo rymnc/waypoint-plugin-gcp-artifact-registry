@@ -1,0 +1,10 @@
+
+syntax = "proto3";
+
+package registry;
+
+option go_package = "github.com/rymnc/waypoint-plugin-gcp-artifact-registry/gcp-artifact-registry/registry";
+
+message Artifact {
+  string source = 1;
+}
