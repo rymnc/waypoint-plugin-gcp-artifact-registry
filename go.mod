@@ -33,7 +33,7 @@ require (
 	github.com/gookit/color v1.3.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-argmapper v0.2.3 // indirect
-	github.com/hashicorp/go-hclog v0.14.1 // indirect
+	github.com/hashicorp/go-hclog v0.14.1
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/go-plugin v1.4.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.6.0 // indirect
@@ -67,8 +67,7 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/api v0.73.0
 	google.golang.org/genproto v0.0.0-20220310185008-1973136f34c6 // indirect
-	google.golang.org/grpc v1.45.0 // indirect
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0 // indirect
+	google.golang.org/grpc v1.45.0
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
 
