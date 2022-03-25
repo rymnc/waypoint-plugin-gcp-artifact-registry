@@ -3,9 +3,14 @@ package registry
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
+
+type Locations struct {
+	Locations []Location `json:"locations"`
+}
 
 type Location struct {
 	Name       string            `json:"name"`
@@ -13,41 +18,79 @@ type Location struct {
 	LocationId string            `json:"locationId"`
 }
 
-func getJson(url string, target interface{}) error {
-	r, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer r.Body.Close()
+type GCPError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Status  string `json:"status"`
+}
 
-	return json.NewDecoder(r.Body).Decode(target)
+type LocationError struct {
+	Error GCPError `json:"error"`
+}
+
+func getLocationJson(url string, target interface{}) error {
+	res, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to get json from url: %s", url)
+	}
+
+	if res.StatusCode != 200 {
+		return fmt.Errorf("failed to get json from url: %s, status code: %d", url, res.StatusCode)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+
+	if readErr != nil {
+		return fmt.Errorf("failed to read response body: %s", readErr.Error())
+	}
+
+	errorResponse := new(LocationError)
+	err = json.Unmarshal(body, target)
+
+	if err != nil {
+		err = json.Unmarshal(body, errorResponse)
+		if err != nil {
+			return fmt.Errorf("failed to parse response from GCP: %s", err.Error())
+		}
+		return fmt.Errorf("%s", errorResponse.Error.Message)
+	}
+
+	return nil
 }
 
 func validateLocation(projectId string, location string) error {
 	// fetching valid locations
-	locations := new([]Location)
+	locations := new(Locations)
 
 	urlWithProject := fmt.Sprintf("https://artifactregistry.googleapis.com/v1beta2/projects/%s/locations?alt=json", projectId)
-	err := getJson(urlWithProject, locations)
+	err := getLocationJson(urlWithProject, locations)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to get locations from GCP: %s", err.Error())
 	}
 
 	//check if the location is one which can be used with the plugin
 	locationValid := false
-	validLocations := new([]string)
+	validLocations := []string{}
 
-	for _, remoteLocation := range *locations {
+	for _, remoteLocation := range *&locations.Locations {
 		if remoteLocation.LocationId == location {
 			locationValid = true
-			*validLocations = append(*validLocations, remoteLocation.LocationId)
 		}
+		validLocations = append(validLocations, remoteLocation.LocationId)
+	}
+
+	if len(validLocations) == 0 {
+		// this means that the project id is invalid
 	}
 
 	// if location invalid, pick out locationId from all locations and print
 	if locationValid == false {
-		return fmt.Errorf("Invalid location '%s'. The valid locations are %s", location, strings.Join(*validLocations, ", "))
+		return fmt.Errorf("Invalid location '%s'. The valid locations are %s", location, strings.Trim(strings.Join(validLocations, " "), " "))
 	}
 
 	return nil

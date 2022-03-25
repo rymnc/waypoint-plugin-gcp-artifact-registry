@@ -22,22 +22,11 @@ func (r *Registry) AuthFunc() interface{} {
 	return r.authenticate
 }
 
-// A ValidateAuthFunc does not have a strict signature, you can define the parameters
-// you need based on the Available parameters that the Waypoint SDK provides.
-// Waypoint will automatically inject parameters as specified
-// in the signature at run time.
-//
-// Available input parameters:
-// - context.Context
-// - *component.Source
-// - *component.JobInfo
-// - *component.DeploymentConfig
-// - hclog.Logger
-// - terminal.UI
-// - *component.LabelSet
-//
-// If an error is returned, Waypoint will attempt to call
-// AuthFunc
+// This function authenticates the actions being taken
+// 1. Auth with GCP via Application Default Credentials (Same as how the cloudrun plugin does it)
+// 2. Create a new Artifact Registry client
+// 3. Checks the IamPermissions for the Artifact Registry
+// 4. If the IamPermissions are correct, then the authentication is successful
 func (r *Registry) validateAuth(
 	ctx context.Context,
 	ui terminal.UI,
