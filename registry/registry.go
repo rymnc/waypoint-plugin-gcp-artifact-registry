@@ -92,9 +92,8 @@ func (r *Registry) pushWithDocker(
 	}
 	cli.NegotiateAPIVersion(ctx)
 
-	step.Update("Tagging Docker image: %s => %s:%s", source.Name(), source.Tag)
-
 	targetTag := fmt.Sprintf("%s-docker.pkg.dev/%s/%s:%s", location, project, repositoryId, source.Tag)
+	step.Update("Tagging Docker image: %s => %s", source.Name(), targetTag)
 
 	err = cli.ImageTag(ctx, source.Name(), targetTag)
 	if err != nil {
