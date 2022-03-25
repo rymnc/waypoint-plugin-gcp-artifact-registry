@@ -18,7 +18,7 @@ import (
 
 type RegistryConfig struct {
 	Project      string `hcl:"project"`
-	Location     string `hcl:"version"`
+	Location     string `hcl:"location"`
 	RepositoryId string `hcl:"repository_id"`
 }
 
@@ -40,6 +40,10 @@ func (r *Registry) ConfigSet(config interface{}) error {
 		// The Waypoint SDK should ensure this never gets hit
 		return fmt.Errorf("Expected *RegisterConfig as parameter")
 	}
+
+	fmt.Println(
+		" o a, jere",
+	)
 
 	r.log.Debug("Starting validations")
 	// validate the config
@@ -75,10 +79,10 @@ func (r *Registry) pushWithDocker(
 	project,
 	repositoryId string,
 	source *docker.Image,
-) error {
+) (string, error) {
 	_, _, err := ui.OutputWriters()
 	if err != nil {
-		return status.Errorf(codes.FailedPrecondition, "unable to create output for logs:%s", err)
+		return "", status.Errorf(codes.FailedPrecondition, "unable to create output for logs:%s", err)
 	}
 
 	sg := ui.StepGroup()
@@ -88,7 +92,7 @@ func (r *Registry) pushWithDocker(
 
 	cli, err := wpdockerclient.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		return status.Errorf(codes.FailedPrecondition, "unable to create Docker client:%s", err)
+		return "", status.Errorf(codes.FailedPrecondition, "unable to create Docker client:%s", err)
 	}
 	cli.NegotiateAPIVersion(ctx)
 
@@ -97,7 +101,7 @@ func (r *Registry) pushWithDocker(
 
 	err = cli.ImageTag(ctx, source.Name(), targetTag)
 	if err != nil {
-		return status.Errorf(codes.Internal, "unable to tag image:%s", err)
+		return "", status.Errorf(codes.Internal, "unable to tag image:%s", err)
 	}
 
 	step.Done()
@@ -108,14 +112,14 @@ func (r *Registry) pushWithDocker(
 	output, err := cmd.Output()
 
 	if err != nil {
-		return status.Errorf(codes.Internal, "unable to push image:%s", err)
+		return "", status.Errorf(codes.Internal, "unable to push image:%s", err)
 	}
 
 	log.Debug(string(output))
 	step.Update("Pushed Docker image: %s", targetTag)
 
 	step.Done()
-	return nil
+	return targetTag, nil
 }
 
 // A PushFunc does not have a strict signature, you can define the parameters
@@ -151,13 +155,15 @@ func (r *Registry) push(ctx context.Context,
 	u.Update("Pushing image to registry")
 
 	// push the image to the registry
-	err := r.pushWithDocker(ctx, log, ui, r.config.Location, r.config.Project, r.config.RepositoryId, img)
+	image, err := r.pushWithDocker(ctx, log, ui, r.config.Location, r.config.Project, r.config.RepositoryId, img)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Artifact{}, nil
+	return &Artifact{
+		Source: image,
+	}, nil
 }
 
 // Implement Authenticator
