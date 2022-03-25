@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/go-playground/validator"
 )
 
 type Locations struct {
@@ -91,6 +93,35 @@ func validateLocation(projectId string, location string) error {
 	// if location invalid, pick out locationId from all locations and print
 	if locationValid == false {
 		return fmt.Errorf("Invalid location '%s'. The valid locations are %s", location, strings.Trim(strings.Join(validLocations, " "), " "))
+	}
+
+	return nil
+}
+
+var ErrInvalidRepositoryId = fmt.Errorf("Invalid repository id")
+var ErrInvalidLocation = fmt.Errorf("Invalid location")
+
+// validates the configuration passed to the plugin
+func validateConfig(c RegistryConfig) error {
+	v := validator.New()
+
+	err := v.Struct(c)
+
+	if err != nil {
+		errorMessage := ""
+		for _, err := range err.(validator.ValidationErrors) {
+			switch err.Namespace() {
+			case "Config.Location":
+				errorMessage += ErrInvalidLocation.Error()
+			case "Config.RepositoryId":
+				errorMessage += ErrInvalidRepositoryId.Error()
+			default:
+				errorMessage += fmt.Sprintf("%s\n", err.Value())
+			}
+		}
+
+		// if
+		return fmt.Errorf(errorMessage)
 	}
 
 	return nil

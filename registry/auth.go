@@ -54,7 +54,7 @@ func (r *Registry) validateAuth(
 	// Used https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository#import
 	// to pull the global resource identifier
 	apiResource := fmt.Sprintf("projects/%s/locations/%s/repositories/%s",
-		r.config.GcpProject,
+		r.config.Project,
 		r.config.Location,
 		r.config.RepositoryId,
 	)
