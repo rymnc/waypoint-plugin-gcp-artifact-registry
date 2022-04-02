@@ -1,39 +1,10 @@
-# Waypoint Plugin Template
+# GCP Artifact Registry Plugin
 
-This folder contains an example plugin structure which can be used when building your own plugins.
+This plugin allows uploading artifacts to artifact registry.
 
 ## Steps
 
-1. To scaffold a new plugin use the `./clone.sh` script passing the destination folder and the Go package
-for your new plugin as parameters
-
-```shell
-./clone.sh myplugin ../destination_folder github.com/myorg/mypackage
-```
-
-2. You can then run the Makefile to compile the new plugin, the `Makefile` will build the plugin for all architectures.
-
-```shell
-cd ../destination_folder
-
-make
-```
-
-```shell
-Build Protos
-protoc -I . --go_out=plugins=grpc:. --go_opt=paths=source_relative ./builder/output.proto
-protoc -I . --go_out=plugins=grpc:. --go_opt=paths=source_relative ./registry/output.proto
-protoc -I . --go_out=plugins=grpc:. --go_opt=paths=source_relative ./platform/output.proto
-protoc -I . --go_out=plugins=grpc:. --go_opt=paths=source_relative ./release/output.proto
-
-Compile Plugin
-# Clear the output
-rm -rf ./bin
-GOOS=linux GOARCH=amd64 go build -o ./bin/linux_amd64/waypoint-plugin-mytest ./main.go 
-GOOS=darwin GOARCH=amd64 go build -o ./bin/darwin_amd64/waypoint-plugin-mytest ./main.go 
-GOOS=windows GOARCH=amd64 go build -o ./bin/windows_amd64/waypoint-plugin-mytest.exe ./main.go 
-GOOS=windows GOARCH=386 go build -o ./bin/windows_386/waypoint-plugin-mytest.exe ./main.go 
-```
+1. Run `make` at project root to build protobufs, and binaries for all platforms
 
 ## Building with Docker
 
