@@ -3,6 +3,7 @@ module github.com/rymnc/waypoint-plugin-gcp-artifact-registry
 go 1.17
 
 require (
+	github.com/docker/docker v20.10.7+incompatible
 	github.com/hashicorp/waypoint-plugin-sdk v0.0.0-20211012192505-5c78341a47e4
 	google.golang.org/protobuf v1.28.0
 )
@@ -26,7 +27,6 @@ require (
 	github.com/containerd/typeurl v1.0.2 // indirect
 	github.com/docker/cli v20.10.7+incompatible // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v20.10.7+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
@@ -81,8 +81,6 @@ require (
 require (
 	github.com/VividCortex/ewma v1.1.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/apparentlymart/go-textseg v1.0.0 // indirect
-	github.com/apparentlymart/go-textseg/v12 v12.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/briandowns/spinner v1.11.1 // indirect
 	github.com/cheggaaa/pb/v3 v3.0.5 // indirect
